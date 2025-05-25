@@ -101,8 +101,14 @@ const openai = new OpenAI({
 // POST generate summary and send to Slack
 router.post('/', async (req, res) => {
   try {
-    // Get all incomplete todos
-    const todos = await Todo.find({ completed: false });
+    const { userId } = req.body;
+    console.log(`Generating summary for userId: ${userId || 'all users'}`);
+    
+    // Get incomplete todos, filtered by userId if provided
+    const filter = { completed: false };
+    if (userId) filter.userId = userId;
+    
+    const todos = await Todo.find(filter);
     
     if (todos.length === 0) {
       return res.status(400).json({ message: 'No pending todos to summarize' });

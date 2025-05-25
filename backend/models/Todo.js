@@ -21,6 +21,10 @@ const TodoSchema = new mongoose.Schema({
   },
   dueDate: {
     type: Date
+  },
+  userId: {
+    type: String,
+    index: true // Add index for faster queries
   }
 }, {
   timestamps: true

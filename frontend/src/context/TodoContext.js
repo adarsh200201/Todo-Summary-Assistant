@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -94,9 +94,20 @@ const todoReducer = (state, action) => {
   }
 };
 
+// Generate a unique user ID if not already present
+const getOrCreateUserId = () => {
+  let userId = localStorage.getItem('todo_user_id');
+  if (!userId) {
+    userId = 'user_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('todo_user_id', userId);
+  }
+  return userId;
+};
+
 // Create provider
 export const TodoProvider = ({ children }) => {
   const [state, dispatch] = useReducer(todoReducer, initialState);
+  const [userId] = useState(getOrCreateUserId());
 
   // Get all todos on component mount
   useEffect(() => {
@@ -107,7 +118,7 @@ export const TodoProvider = ({ children }) => {
   const getTodos = async () => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      const response = await axios.get(`${API_URL}/todos`);
+      const response = await axios.get(`${API_URL}/todos?userId=${userId}`);
       dispatch({
         type: 'GET_TODOS',
         payload: response.data
@@ -143,11 +154,13 @@ export const TodoProvider = ({ children }) => {
     }
   };
 
-  // Add todo
+  // Add a todo
   const addTodo = async (todo) => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      const response = await axios.post(`${API_URL}/todos`, todo);
+      // Add userId to the todo data
+      const todoWithUser = { ...todo, userId };
+      const response = await axios.post(`${API_URL}/todos`, todoWithUser);
       dispatch({
         type: 'ADD_TODO',
         payload: response.data
@@ -162,11 +175,11 @@ export const TodoProvider = ({ children }) => {
     }
   };
 
-  // Delete todo
+  // Delete a todo
   const deleteTodo = async (id) => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      await axios.delete(`${API_URL}/todos/${id}`);
+      await axios.delete(`${API_URL}/todos/${id}?userId=${userId}`);
       dispatch({
         type: 'DELETE_TODO',
         payload: id
@@ -181,11 +194,13 @@ export const TodoProvider = ({ children }) => {
     }
   };
 
-  // Update todo
-  const updateTodo = async (id, updatedTodo) => {
+  // Update a todo
+  const updateTodo = async (id, todo) => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      const response = await axios.put(`${API_URL}/todos/${id}`, updatedTodo);
+      // Ensure userId is included in the update
+      const todoWithUser = { ...todo, userId };
+      const response = await axios.put(`${API_URL}/todos/${id}?userId=${userId}`, todoWithUser);
       dispatch({
         type: 'UPDATE_TODO',
         payload: response.data
@@ -214,8 +229,7 @@ export const TodoProvider = ({ children }) => {
   const generateSummary = async () => {
     dispatch({ type: 'SET_SUMMARY_LOADING' });
     try {
-      const response = await axios.post(`${API_URL}/summarize`);
-      
+      const response = await axios.post(`${API_URL}/summarize`, { userId });
       dispatch({
         type: 'SET_SUMMARY',
         payload: response.data.summary
