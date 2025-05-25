@@ -50,23 +50,8 @@ const TodoItem = ({ todo }) => {
     return dueDate < today;
   };
   
-  // Get due date class
-  const getDueDateClass = () => {
-    if (!todo.dueDate) return '';
-    
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dueDate = new Date(todo.dueDate);
-    dueDate.setHours(0, 0, 0, 0);
-    
-    if (dueDate < today) {
-      return 'overdue';
-    } else if (dueDate.getTime() === today.getTime()) {
-      return 'due-today';
-    }
-    
-    return '';
-  };
+  // We're using isOverdue() instead of this function now
+  // The getDueDateClass functionality has been incorporated into the component directly
 
   // Get priority badge styles
   const getPriorityClass = (priority) => {

@@ -5,7 +5,6 @@ import TodoForm from './components/TodoForm';
 import TodoList from './components/TodoList';
 import SummarySection from './components/SummarySection';
 import { useTodoContext } from './context/TodoContext';
-import { FaSpinner } from 'react-icons/fa';
 
 function App() {
   const { loading } = useTodoContext();
