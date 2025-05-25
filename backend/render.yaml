@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: todo-summary-assistant-api
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SLACK_WEBHOOK_URL
+        sync: false
