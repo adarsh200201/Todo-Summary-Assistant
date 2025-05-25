@@ -5,8 +5,8 @@ import { toast } from 'react-toastify';
 // Create context
 const TodoContext = createContext();
 
-// API base URL
-const API_URL = 'http://localhost:5001/api';
+// API base URL - use environment variable or default to localhost for development
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
 // Initial state
 const initialState = {
