@@ -5,10 +5,17 @@ const Todo = require('../models/Todo');
 // GET all todos
 router.get('/', async (req, res) => {
   try {
+    console.log('GET /todos request received');
     const todos = await Todo.find().sort({ createdAt: -1 });
-    res.json(todos);
+    console.log(`Found ${todos.length} todos`);
+    return res.json(todos);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Error fetching todos:', err);
+    return res.status(500).json({ 
+      message: err.message,
+      error: true,
+      stack: process.env.NODE_ENV === 'production' ? null : err.stack 
+    });
   }
 });
 
@@ -27,19 +34,26 @@ router.get('/:id', async (req, res) => {
 
 // CREATE a todo
 router.post('/', async (req, res) => {
-  const todo = new Todo({
-    title: req.body.title,
-    description: req.body.description,
-    completed: req.body.completed,
-    priority: req.body.priority,
-    dueDate: req.body.dueDate
-  });
-
   try {
+    console.log('POST /todos request received:', req.body);
+    const todo = new Todo({
+      title: req.body.title,
+      description: req.body.description,
+      completed: req.body.completed,
+      priority: req.body.priority,
+      dueDate: req.body.dueDate
+    });
+
     const newTodo = await todo.save();
-    res.status(201).json(newTodo);
+    console.log('Todo created successfully:', newTodo._id);
+    return res.status(201).json(newTodo);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error('Error creating todo:', err);
+    return res.status(400).json({ 
+      message: err.message,
+      error: true,
+      stack: process.env.NODE_ENV === 'production' ? null : err.stack 
+    });
   }
 });
 
